@@ -14,6 +14,7 @@ function App() {
       setDrawerIsOpened(drawerIsOpened => false);
     }
   }
+
   return (
     <div className="wrapper">
       <Drawer onHandleCloseDrawer={onHandleCloseDrawer} drawerIsOpened={drawerIsOpened} />
