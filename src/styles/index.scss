@@ -1,0 +1,20 @@
+@import "../../node_modules/bootstrap/scss/bootstrap-reboot.scss";
+// @import "../node_modules/bootstrap/scss/bootstrap-grid.scss";
+@import "./reset.scss";
+@import "./fonts.scss";
+@import "./vars.scss";
+
+
+body {
+  overflow-x: hidden;
+  margin: 0;
+  padding-top: 85px;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: $main-wrapper-background-color;
+}
+
+
+
+
