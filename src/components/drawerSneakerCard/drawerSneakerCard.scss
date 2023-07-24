@@ -1,0 +1,33 @@
+@import "../../styles/vars.scss";
+.drawer-sneaker-item{
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid #F3F3F3;
+    background-color: $main-color-1;
+    &__content{
+      display: flex;
+      align-items: center;
+    }
+    &__photo{
+      width: 70px;
+      height: 70px;
+      overflow: hidden;
+      margin-right: 21px;
+    }
+    &__titles{
+      margin-right: 12px;
+    }
+    &__name{
+      margin-bottom: 8px;
+      font-family: Inter;
+      font-size: 14px;
+      font-weight: 400;
+      color: $main-color-2;
+    }
+    &__price{
+      font-family: Inter;
+      font-size: 14px;
+      font-weight: 700;
+      color: $main-color-2;
+    }
+}

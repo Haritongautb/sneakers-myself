@@ -1,0 +1,41 @@
+@import "../../styles/vars.scss";
+
+.drawer-info{
+    position: absolute;
+    top: 50%;
+    transform: translate3d(0, -50%, 0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    &__photo{
+        width: 120px;
+        height: 120px;
+        margin-bottom: 21px;
+    }
+    &__titles{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        margin-bottom: 40px;
+    }
+    &__title{
+        font-family: Inter;
+        font-size: 22px;
+        font-weight: 600;
+        color: $main-color-2;
+        &.order-is-completed{
+            color: #87C20A;
+        }
+    }
+    &__subtitle{
+        text-align: center;
+        font-family: Inter;
+        font-size: 16px;
+        font-weight: 400;
+        color: rgba($main-color-2, 0.5);
+    }
+}

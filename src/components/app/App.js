@@ -1,378 +1,138 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import AppContext from '../../contexts/appContext';
+import axios from 'axios';
+import Header from '../header';
 import Drawer from '../drawer';
+import Home from '../../pages/Home';
+import Orders from '../../pages/orders/Orders';
+import FavoritesSneakers from '../../pages/favoritesSneakers/FavoritesSneakers';
 import './app.scss';
 
 function App() {
-  const [drawerIsOpened, setDrawerIsOpened] = useState(false);
+    const [drawerIsOpened, setDrawerIsOpened] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [sneakers, setSneakers] = useState([]);
+    const [cartSneakers, setCartSneakers] = useState([]);
+    const [favoritedSneakers, setFavoritedSneakers] = useState([]);
+    const [orders, setOrders] = useState([]);
 
-  const onHandleOpenDrawer = () => {
-    setDrawerIsOpened(drawerIsOpened => true);
-  }
+    useEffect(() => {
+        (async () => {
+            try {
+                setIsLoading(isLoading => true);
+                const [cartSneakersResponse, favoritedSneakersResponse, sneakersResponse, ordersResponse] = await Promise.all([
+                    axios.get("http://localhost:3001/cartSneakers"),
+                    axios.get("http://localhost:3001/favoritesSneakers"),
+                    axios.get("http://localhost:3001/sneakers"),
+                    axios.get("http://localhost:3001/orders")
+                ])
 
-  const onHandleCloseDrawer = (event) => {
-    if (event.target.classList.contains("drawer") || event.target.closest(".button-close-drawer")) {
-      setDrawerIsOpened(drawerIsOpened => false);
+                setCartSneakers(cartSneakers => [...cartSneakers, ...cartSneakersResponse.data])
+                setFavoritedSneakers(favoritedSneakers => [...favoritedSneakers, ...favoritedSneakersResponse.data])
+                setSneakers(sneakers => [...sneakers, ...sneakersResponse.data]);
+                setOrders(orders => [...orders, ...ordersResponse.data])
+                setIsLoading(isLoading => false);
+            } catch (error) {
+                throw error;
+            }
+        })();
+
+    }, [])
+
+    const onHandleOpenDrawer = () => {
+        setDrawerIsOpened(drawerIsOpened => true);
     }
-  }
 
-  return (
-    <div className="wrapper">
-      <Drawer onHandleCloseDrawer={onHandleCloseDrawer} drawerIsOpened={drawerIsOpened} />
-      <div className="wrapper-inner">
-        <header className="header">
-          <div className="container">
-            <nav className="navbar">
-              <div className="navbar__left">
-                <div className="navbar__photo-logo">
-                  <img className="navbar__img-logo" src="/img/logo.png" alt="Sneakers Logo" />
+    const onHandleCloseDrawer = (event) => {
+        if (event.target.classList.contains("drawer") || event.target.closest(".button-close-drawer") || event.target.closest(".button-total")) {
+            setDrawerIsOpened(drawerIsOpened => false);
+        }
+    }
+
+
+    const onHandleAddFavorited = async (sneaker) => {
+        try {
+            if (favoritedSneakers.find(item => Number(item.id) === Number(sneaker.id))) {
+                const result = await axios.delete(`http://localhost:3001/favoritesSneakers/${sneaker.id}`);
+                if (result.statusText === "OK") {
+                    return setFavoritedSneakers(favoritedSneakers => favoritedSneakers.filter(item => Number(item.id) !== Number(sneaker.id)))
+                }
+            }
+            const result = await axios.post("http://localhost:3001/favoritesSneakers", sneaker);
+            if (result.statusText === "Created") {
+                return setFavoritedSneakers(favoritedSneakers => [...favoritedSneakers, result.data])
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const onHandleAddCart = async (sneaker) => {
+
+        try {
+            if (sneaker.sizes) {
+                if (cartSneakers.find(item => Number(item.id) === Number(sneaker.id))) {
+                    const result = await axios.delete(`http://localhost:3001/cartSneakers/${sneaker.id}`);
+                    if (result.statusText === "OK") {
+                        return setCartSneakers(sneakers => sneakers.filter(item => Number(item.id) !== Number(sneaker.id)))
+                    }
+                }
+            }
+            const result = await axios.post("http://localhost:3001/cartSneakers", sneaker);
+            if (result.statusText === "Created") {
+                return setCartSneakers(sneakers => [...sneakers, result.data])
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+    return (
+        <Router>
+            <AppContext.Provider value={{
+                cartSneakers,
+                setCartSneakers,
+                onHandleCloseDrawer,
+                onHandleOpenDrawer,
+                isLoading,
+                onHandleAddCart,
+                onHandleAddFavorited
+            }}>
+                <div className="wrapper">
+                    <Header />
+                    <Drawer
+                        drawerIsOpened={drawerIsOpened}
+                        onHandleCloseDrawer={onHandleCloseDrawer}
+                        orders={orders}
+                        setOrders={setOrders}
+                    />
+                    <div className="wrapper-inner">
+
+                        <main className="main">
+                            <Routes>
+                                <Route exact path="/" element={<Home
+                                    sneakers={sneakers}
+                                    cartSneakers={cartSneakers}
+                                    favoritedSneakers={favoritedSneakers}
+                                    searchValue={searchValue}
+                                    setSearchValue={setSearchValue} />} />
+                                <Route exact path="/favorites" element={<FavoritesSneakers
+                                    sneakers={sneakers}
+                                    favoritedSneakers={favoritedSneakers}
+                                    cartSneakers={cartSneakers}
+                                />} />
+
+                                <Route exact path="/orders" element={<Orders
+                                    orders={orders}
+                                />} />
+                            </Routes>
+                        </main>
+                    </div>
                 </div>
-
-                <div className="navbar__logo-titles">
-                  <h1 className="navbar__logo-title">react sneakers</h1>
-                  <div className="navbar__logo-subtitle">Магазин лучших кроссовок</div>
-                </div>
-              </div>
-
-              <ul className="navbar__right">
-
-                <li className="navbar__cart-block" onClick={onHandleOpenDrawer}>
-                  <div className="navbar__photo-cart">
-                    <img width={18} height={18} className="navbar-icon navbar__cart-icon" src="/img/cart.svg" alt="Cart icon" />
-                  </div>
-                  <div className="navbar__cart-total-value">1205 руб.</div>
-                </li>
-
-                <li className="navbar__cart-favorites-icon">
-                  <img width={21} height={19} className="navbar-icon navbar__like-icon" src="/img/favorite.svg" alt="Favorites icon" />
-                </li>
-
-                <li className="navbar__cart-favorites-icon">
-                  <img width={20} height={20} className="navbar-icon navbar__user-icon" src="/img/user.svg" alt="User icon" />
-                </li>
-
-              </ul>
-            </nav>
-          </div>
-        </header>
-
-        <main className="main">
-          <section className="search">
-            <div className="container">
-
-              <div className="search__wrapper">
-                <h2 className="search__title">Все кроссовки</h2>
-
-                <form className="search__form" action="#">
-                  <label className="search__label" htmlFor="search">
-                    <img className="search__icon" width={15} height={15} src="/img/button-search.svg" alt="Search icon" />
-                  </label>
-
-                  <input className="search__form-input" type="text" id="search" placeholder="Поиск" />
-                  <button className="remove-button search__button" type="button">
-                    <img className="remove-button__img search__remove-icon" width={32} height={32} src="/img/button-remove.svg" alt="Remove icon" />
-                  </button>
-                </form>
-              </div>
-            </div>
-          </section>
-
-          <section className="sneakers-cards">
-            <div className="container">
-              <ul className="sneakers-list">
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/1.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="sneakers-card">
-                  <div className="sneakers-card__wrapper">
-                    <div className="sneakers-card__photo-sneaker">
-                      <div className="sneakers-card__photo-like-icon">
-                        <img width={32} height={32} className="sneakers-card_img-like" src="/img/heart-unliked.svg" alt="Like heaert icon" />
-                      </div>
-                      <img className="sneakers-card__img-sneaker" src="/img/sneakers/2.jpg" alt="Sneakers image" />
-                    </div>
-
-                    <div className="sneakers-card__name">Мужские Кроссовки Nike Blazer Mid Suede</div>
-
-                    <div className="sneakers-card__bottom-block">
-                      <div className="sneakers-card__bottom-left-block">
-                        <div className="sneakers-card__price">Цена: </div>
-                        <div className="sneakers-card__price-value">12 999 руб.</div>
-                      </div>
-
-                      <div className="sneakers-card__button-add">
-                        <button className="sneakers-card__button" type="button">
-                          <img width={32} height={32} className="sneakers-card__img-plus" src="/img/button-plus.svg" alt="Button add" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-              </ul>
-            </div>
-          </section>
-        </main>
-      </div>
-    </div>
-  );
+            </AppContext.Provider>
+        </Router>
+    );
 }
 
 export default App;

@@ -1,0 +1,61 @@
+@import "../../styles/vars.scss";
+
+.orders{
+    &__wrapper{
+        &.has-no-orders{
+            height: 100vh;
+            padding: 175px 0 50px;
+        }
+    }
+}
+
+.orders-list{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    grid-gap: 40px;
+    padding: 50px 0;
+    height: 100%;
+    &__title{
+        font-size: 25px;
+        font-weight: 700;
+        color: #27ae60;
+    }
+    &__bill-id{
+        font-size: 25px;
+        font-weight: 600;
+        color: $main-color-2;
+    }
+    &__block{
+        width: 100%;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #27ae60;
+    }
+    &__items-list{
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: 260px;
+        flex-wrap: wrap;
+        grid-gap: 40px;
+        padding: 20px 0;
+        height: 100%;
+    }
+    &__prices{
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    &__amount-name{
+        margin-bottom: 10px;
+        font-size: 25px;
+        font-weight: 700;
+        color: #27ae60;
+    }
+    &__amount-numbers{
+        font-size: 15px;
+        font-weight: 500;
+        color: $main-color-2;
+    }
+}

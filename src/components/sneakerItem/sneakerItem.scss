@@ -1,0 +1,50 @@
+@import "../../styles/vars.scss";
+.sneakers-card{
+    padding: 20px 29px 34px 31px;
+    border-radius: 40px;
+    border: 1px solid #F3F3F3;
+    background-color: $main-color-1;
+    &__top-block{
+        display: flex;
+        gap: 10px;
+    }
+    &__photo-sneaker{
+        position: relative;
+        width: 133px;
+        height: 112px;
+        margin-bottom: 14px;
+        overflow: hidden;
+    }
+    &__photo-like-icon{
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 7;
+        cursor: pointer;
+    }
+    &__name{
+        margin-bottom: 14px;
+        font-family: Inter;
+        font-size: 14px;
+        font-weight: 400;
+        color: $main-color-2;
+    }
+    &__price{
+        margin-bottom: 3px;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        color: #BDBDBD;
+    }
+    &__price-value{
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 98%;
+        color: $main-color-2;
+    }
+    &__bottom-block{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+  }

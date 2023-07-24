@@ -23,6 +23,7 @@
       z-index: 10;
     }
     &__content{
+      position: relative;
       display: flex;
       flex-direction: column;
       min-height: 100%;
@@ -33,11 +34,14 @@
       justify-content: space-between;
       margin-bottom: 30px;
     }
+    &__content-top{
+      flex: 0 0 4%;
+    }
     &__content-middle{
-      flex: 1 0 auto;
+      flex: 1 0 76%;
     }
     &__content-bottom{
-      flex: 0 0 auto;
+      flex: 0 0 20%;
     }
     &__title{
       font-family: Inter;
@@ -45,46 +49,14 @@
       font-weight: 700;
       color: $main-color-2;
     }
-  }
-  
-  .drawer-sneakers-list{
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    gap: 20px;
-  }
-  
-  .drawer-sneaker-item{
-    padding: 20px;
-    border-radius: 20px;
-    border: 1px solid #F3F3F3;
-    background-color: $main-color-1;
-    &__content{
-      display: flex;
-      align-items: center;
-    }
-    &__photo{
-      width: 70px;
-      height: 70px;
-      overflow: hidden;
-      margin-right: 21px;
-    }
-    &__titles{
-      margin-right: 12px;
-    }
-    &__name{
-      margin-bottom: 8px;
-      font-family: Inter;
-      font-size: 14px;
-      font-weight: 400;
-      color: $main-color-2;
-    }
-    &__price{
-      font-family: Inter;
-      font-size: 14px;
-      font-weight: 700;
-      color: $main-color-2;
-    }
+}
+
+.drawer-sneakers-list{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 500px;
+  overflow: auto;
 }
   
 .drawer-total{
@@ -93,18 +65,22 @@
     justify-content: space-between;
     margin-bottom: 24px;
     &__title{
+      flex: 0 1 25%;
       font-family: Inter;
       font-size: 16px;
       font-weight: 400;
       color: $main-color-2;
     }
     &__value{  
+      flex: 1 1 25%;
+      text-align: right;
       font-family: Inter;
       font-size: 16px;
       font-weight: 600;  
       color: $main-color-2;
     }
     &__border-dashed{
+      flex: 0 1 45%;
       width: 55%;
       border-bottom: 1px dashed #DFDFDF;
     }
@@ -136,5 +112,18 @@
       &.no-left{
         transform: rotate(180deg);
         }
+    }
+    &.exit{
+      position: relative;
+      width: 245px;
+      .button-total__photo{
+        position: absolute;
+        top: 50%;
+        left: 32px;
+        transform: translate3d(0, -50%, 0);
+      }
+      .button-total__content{
+        margin-right: 0;
+      }
     }
 }

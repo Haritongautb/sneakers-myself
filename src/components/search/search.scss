@@ -1,0 +1,39 @@
+@import "../../styles/vars.scss";
+
+.search{
+    padding: 40px 0 40px;
+    &__wrapper{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    &__title{
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 224%;
+      color: $main-color-2;
+    }
+    &__form{
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 350px;
+      max-height: 45px;
+      padding: 15px 18px 15px 46px;
+      border-radius: 10px;
+      border: 1px solid #F3F3F3;
+      overflow: hidden;
+    }
+    &__label{
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translate3d(0, -50%, 0);
+    }
+    &__form-input{
+      width: 100%;
+      font-weight: 500;
+      font-size: 20px;
+      padding-right: 20px;
+    }
+}
