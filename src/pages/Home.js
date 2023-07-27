@@ -7,7 +7,7 @@ const Home = ({
     cartSneakers,
     favoritedSneakers,
     searchValue,
-    setSearchValue
+    setSearchValue,
 }) => {
     return (
         <>

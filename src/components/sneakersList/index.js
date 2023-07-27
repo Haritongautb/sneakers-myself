@@ -4,7 +4,7 @@ import SneakerItem from "../sneakerItem";
 import "./sneakersList.scss";
 
 const SneakersList = ({ sneakers, cartSneakers, favoritedSneakers, searchValue }) => {
-    const { isLoading, onHandleAddCart, onHandleAddFavorited } = useContext(AppContext);
+    const { isLoading, onHandleAddCart, onHandleAddFavorited, onHandleChangeSize } = useContext(AppContext);
     const renderSneakersCard = isLoading || sneakers.length <= 0 ? [...Array(8)].map((item, index) => <SneakerItem key={`skeleton_${index + 1}`} isLoading={true} />) :
         searchValue ?
             sneakers.filter(item => item.name.toLowerCase().includes(searchValue.toLowerCase()))
@@ -14,6 +14,7 @@ const SneakersList = ({ sneakers, cartSneakers, favoritedSneakers, searchValue }
                     isAdded={cartSneakers.some(sneaker => Number(sneaker.id) === Number(item.id))}
                     onHandleAddCart={onHandleAddCart}
                     onHandleAddFavorited={onHandleAddFavorited}
+                    onHandleChangeSize={onHandleChangeSize}
                     {...item}
                 />) :
             sneakers.map(item => <SneakerItem
@@ -22,6 +23,7 @@ const SneakersList = ({ sneakers, cartSneakers, favoritedSneakers, searchValue }
                 isAdded={cartSneakers.some(sneaker => Number(sneaker.id) === Number(item.id))}
                 onHandleAddCart={onHandleAddCart}
                 onHandleAddFavorited={onHandleAddFavorited}
+                onHandleChangeSize={onHandleChangeSize}
                 {...item}
             />)
     return (

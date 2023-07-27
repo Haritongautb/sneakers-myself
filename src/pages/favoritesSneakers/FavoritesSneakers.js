@@ -6,7 +6,7 @@ import SneakerItem from "../../components/sneakerItem";
 import "./favoritesSneakers.scss";
 
 const FavoritesSneakers = ({ cartSneakers, favoritedSneakers }) => {
-    const { isLoading, onHandleAddCart, onHandleAddFavorited } = useContext(AppContext);
+    const { isLoading, onHandleAddCart, onHandleAddFavorited, onHandleChangeSize } = useContext(AppContext);
     let favoritesSneakersWrapperClassName = "favorites-sneakers__wrapper";
 
     if (!favoritedSneakers.length) {
@@ -36,6 +36,7 @@ const FavoritesSneakers = ({ cartSneakers, favoritedSneakers }) => {
                                                 isAdded={cartSneakers.some(sneaker => Number(sneaker.id) === Number(item.id))}
                                                 onHandleAddCart={onHandleAddCart}
                                                 onHandleAddFavorited={onHandleAddFavorited}
+                                                onHandleChangeSize={onHandleChangeSize}
                                                 {...item} />)
                                         }
                                     </ul> :

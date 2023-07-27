@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import ContentLoader from "react-content-loader";
 import "./sneakerItem.scss";
 
@@ -10,18 +11,25 @@ const SneakerItem = ({
     isFavorited = false,
     isAdded = false,
     onHandleAddCart,
-    onHandleAddFavorited
+    onHandleAddFavorited,
+    onHandleChangeSize
 }) => {
+    const [size, setSize] = useState("X");
 
+    useEffect(() => {
+        onHandleChangeSize({ id, name, price, src, size });
+    }, [size])
     const onHandleInput = (event) => {
-        onHandleAddCart({ id, name, price, src, [event.target.name]: event.target.value })
+        setSize(size => event.target.value);
+        // setState работает асинхронно, поэтому сначала будет вызван методы не относящиеся к React, и только потом сработает setState()
+        // поэтому я не пишу         onHandleChangeSize({ id, name, price, src, size });
+        // onHandleChangeSize({ id, name, price, src, size: event.target.value });
     }
 
-    const addToCart = (event) => {
-        if (event.target.closest(".sneakers-card__photo-sneaker")) {
-            onHandleAddCart({ id, name, price, src, [event.target.name]: event.target.value })
-        }
+    const addToCart = () => {
+        onHandleAddCart({ id, name, price, src, size })
     }
+
     const addToFavorited = () => {
         onHandleAddFavorited({ id, name, price, src })
     }
@@ -57,7 +65,7 @@ const SneakerItem = ({
                                     <img className="sneakers-card__img-sneaker" src={src} alt={name} />
                                 </div>
 
-                                <select className="sneakers-card__select-size" name="sizes" onChange={onHandleInput}>
+                                <select className="sneakers-card__select-size" onChange={onHandleInput} value={size}>
                                     <option value="X">X</option>
                                     <option value="M">M</option>
                                     <option value="S">S</option>

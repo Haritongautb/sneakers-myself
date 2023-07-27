@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import AppContext from '../../contexts/appContext';
 import axios from 'axios';
+import useSneakersRequests from '../../hooks/useSneakersRequests';
 import Header from '../header';
 import Drawer from '../drawer';
 import Home from '../../pages/Home';
@@ -12,30 +13,22 @@ import './app.scss';
 function App() {
     const [drawerIsOpened, setDrawerIsOpened] = useState(false);
     const [searchValue, setSearchValue] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [sneakers, setSneakers] = useState([]);
     const [cartSneakers, setCartSneakers] = useState([]);
     const [favoritedSneakers, setFavoritedSneakers] = useState([]);
     const [orders, setOrders] = useState([]);
-
+    const { isLoading, request } = useSneakersRequests();
     useEffect(() => {
         (async () => {
             try {
-                setIsLoading(isLoading => true);
-                const [cartSneakersResponse, favoritedSneakersResponse, sneakersResponse, ordersResponse] = await Promise.all([
-                    axios.get("http://localhost:3001/cartSneakers"),
-                    axios.get("http://localhost:3001/favoritesSneakers"),
-                    axios.get("http://localhost:3001/sneakers"),
-                    axios.get("http://localhost:3001/orders")
-                ])
+                const [cartSneakersResponse, favoritedSneakersResponse, sneakersResponse, ordersResponse] = await request();
 
                 setCartSneakers(cartSneakers => [...cartSneakers, ...cartSneakersResponse.data])
                 setFavoritedSneakers(favoritedSneakers => [...favoritedSneakers, ...favoritedSneakersResponse.data])
                 setSneakers(sneakers => [...sneakers, ...sneakersResponse.data]);
                 setOrders(orders => [...orders, ...ordersResponse.data])
-                setIsLoading(isLoading => false);
             } catch (error) {
-                throw error;
+                alert(error.message);
             }
         })();
 
@@ -69,15 +62,24 @@ function App() {
         }
     }
 
-    const onHandleAddCart = async (sneaker) => {
+    function onHandleChangeSize(sneaker) {
+        if (cartSneakers.find(item => Number(item.id) === Number(sneaker.id))) {
+            return setCartSneakers(sneakers => sneakers.map(item => {
+                if (Number(item.id) === Number(sneaker.id)) {
+                    return { ...item, size: sneaker.size }
+                }
+                return item;
+            }))
+        }
+        return setCartSneakers(sneakers => [...sneakers, sneaker]);
+    }
 
+    const onHandleAddCart = async (sneaker) => {
         try {
-            if (sneaker.sizes) {
-                if (cartSneakers.find(item => Number(item.id) === Number(sneaker.id))) {
-                    const result = await axios.delete(`http://localhost:3001/cartSneakers/${sneaker.id}`);
-                    if (result.statusText === "OK") {
-                        return setCartSneakers(sneakers => sneakers.filter(item => Number(item.id) !== Number(sneaker.id)))
-                    }
+            if (cartSneakers.find(item => Number(item.id) === Number(sneaker.id))) {
+                const result = await axios.delete(`http://localhost:3001/cartSneakers/${sneaker.id}`);
+                if (result.statusText === "OK") {
+                    return setCartSneakers(sneakers => sneakers.filter(item => Number(item.id) !== Number(sneaker.id)))
                 }
             }
             const result = await axios.post("http://localhost:3001/cartSneakers", sneaker);
@@ -88,6 +90,7 @@ function App() {
             throw error;
         }
     }
+
     return (
         <Router>
             <AppContext.Provider value={{
@@ -97,7 +100,8 @@ function App() {
                 onHandleOpenDrawer,
                 isLoading,
                 onHandleAddCart,
-                onHandleAddFavorited
+                onHandleAddFavorited,
+                onHandleChangeSize
             }}>
                 <div className="wrapper">
                     <Header />
