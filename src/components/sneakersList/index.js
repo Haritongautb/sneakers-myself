@@ -15,6 +15,7 @@ const SneakersList = ({ sneakers, cartSneakers, favoritedSneakers, searchValue }
                     onHandleAddCart={onHandleAddCart}
                     onHandleAddFavorited={onHandleAddFavorited}
                     onHandleChangeSize={onHandleChangeSize}
+                    selectedSize={cartSneakers.filter(sneaker => Number(sneaker.id) === Number(item.id))}
                     {...item}
                 />) :
             sneakers.map(item => <SneakerItem
@@ -24,6 +25,7 @@ const SneakersList = ({ sneakers, cartSneakers, favoritedSneakers, searchValue }
                 onHandleAddCart={onHandleAddCart}
                 onHandleAddFavorited={onHandleAddFavorited}
                 onHandleChangeSize={onHandleChangeSize}
+                selectedSize={cartSneakers.filter(sneaker => Number(sneaker.id) === Number(item.id))}
                 {...item}
             />)
     return (

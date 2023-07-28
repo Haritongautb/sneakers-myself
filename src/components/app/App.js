@@ -62,16 +62,25 @@ function App() {
         }
     }
 
-    function onHandleChangeSize(sneaker) {
-        if (cartSneakers.find(item => Number(item.id) === Number(sneaker.id))) {
-            return setCartSneakers(sneakers => sneakers.map(item => {
-                if (Number(item.id) === Number(sneaker.id)) {
-                    return { ...item, size: sneaker.size }
+    const onHandleChangeSize = async (sneaker) => {
+        try {
+            if (cartSneakers.find(item => Number(item.id) === Number(sneaker.id))) {
+                const result = await axios.put(`http://localhost:3001/cartSneakers/${sneaker.id}`, sneaker);
+                console.log(result);
+                if (result.statusText === "OK") {
+                    return setCartSneakers(sneakers => sneakers.map(item => {
+                        if (Number(item.id) === Number(sneaker.id)) {
+                            return { ...item, size: sneaker.size }
+                        }
+                        return item;
+                    }))
                 }
-                return item;
-            }))
+            }
+        } catch (error) {
+            alert(error);
         }
-        return setCartSneakers(sneakers => [...sneakers, sneaker]);
+
+        return;
     }
 
     const onHandleAddCart = async (sneaker) => {

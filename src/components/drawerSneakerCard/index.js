@@ -2,7 +2,8 @@ import { useContext } from "react";
 import AppContext from "../../contexts/appContext";
 import "./drawerSneakerCard.scss";
 
-const DrawerSneakerCard = ({ id, name, price, src }) => {
+const DrawerSneakerCard = ({ id, name, price, src, size }) => {
+    console.log(size);
     const { onHandleAddCart } = useContext(AppContext);
     return (
         <li className="drawer-sneaker-item">
@@ -14,6 +15,10 @@ const DrawerSneakerCard = ({ id, name, price, src }) => {
                 <div className="drawer-sneaker-item__titles">
                     <div className="drawer-sneaker-item__name">
                         {name}
+                    </div>
+                    <div className="drawer-sneaker-item__size">
+                        <span className="drawer-sneaker-item__size-span">Размер -</span>
+                        {size}
                     </div>
                     <div className="drawer-sneaker-item__price">{price} руб.</div>
                 </div>

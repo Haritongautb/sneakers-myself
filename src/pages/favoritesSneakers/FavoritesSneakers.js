@@ -37,6 +37,7 @@ const FavoritesSneakers = ({ cartSneakers, favoritedSneakers }) => {
                                                 onHandleAddCart={onHandleAddCart}
                                                 onHandleAddFavorited={onHandleAddFavorited}
                                                 onHandleChangeSize={onHandleChangeSize}
+                                                selectedSize={cartSneakers.filter(sneaker => Number(sneaker.id) === Number(item.id))}
                                                 {...item} />)
                                         }
                                     </ul> :

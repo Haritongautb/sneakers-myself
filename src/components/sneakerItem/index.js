@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import ContentLoader from "react-content-loader";
 import "./sneakerItem.scss";
 
@@ -7,31 +8,29 @@ const SneakerItem = ({
     name,
     price,
     src,
+    sizes,
     isLoading = false,
     isFavorited = false,
     isAdded = false,
     onHandleAddCart,
     onHandleAddFavorited,
-    onHandleChangeSize
+    onHandleChangeSize,
+    selectedSize
 }) => {
-    const [size, setSize] = useState("X");
 
-    useEffect(() => {
-        onHandleChangeSize({ id, name, price, src, size });
-    }, [size])
+    const [size, setSize] = useState(selectedSize ? isLoading ? null : selectedSize.length ? selectedSize[0].size : 39 : null);
+
     const onHandleInput = (event) => {
+        // setState работают асинхронно, то есть вначале срабатывают все функции не отсносящиеся к React, и только затем срабатывает setState и компонент заново рендерится 
+        // Вот почему я написал onHandleChangeSize({ id, name, price, src, size: event.target.value }), а не так onHandleChangeSize({ id, name, price, src, size })
         setSize(size => event.target.value);
-        // setState работает асинхронно, поэтому сначала будет вызван методы не относящиеся к React, и только потом сработает setState()
-        // поэтому я не пишу         onHandleChangeSize({ id, name, price, src, size });
-        // onHandleChangeSize({ id, name, price, src, size: event.target.value });
+        onHandleChangeSize({ id, name, price, src, size: event.target.value })
     }
-
     const addToCart = () => {
         onHandleAddCart({ id, name, price, src, size })
     }
-
     const addToFavorited = () => {
-        onHandleAddFavorited({ id, name, price, src })
+        onHandleAddFavorited({ id, name, price, src, sizes })
     }
 
     return (
@@ -64,13 +63,14 @@ const SneakerItem = ({
                                     }
                                     <img className="sneakers-card__img-sneaker" src={src} alt={name} />
                                 </div>
-
-                                <select className="sneakers-card__select-size" onChange={onHandleInput} value={size}>
-                                    <option value="X">X</option>
-                                    <option value="M">M</option>
-                                    <option value="S">S</option>
-                                    <option value="XL">XL</option>
-                                </select>
+                                {
+                                    onHandleChangeSize &&
+                                    <select className="sneakers-card__select-size" onChange={onHandleInput} value={size}>
+                                        {
+                                            sizes && sizes.map(item => <option key={item} value={item}>{item}</option>)
+                                        }
+                                    </select>
+                                }
                             </div>
 
                             <div className="sneakers-card__name">{name}</div>

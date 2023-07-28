@@ -30,4 +30,13 @@
       font-weight: 700;
       color: $main-color-2;
     }
+    &__size{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: Inter;
+      font-size: 14px;
+      font-weight: 700;
+      color: $main-color-2;
+    }
 }
